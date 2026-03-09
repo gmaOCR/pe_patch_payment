@@ -22,6 +22,23 @@ JSON_ERRORS: Tuple[type[Exception], ...] = (
 class PaymentProvider(models.Model):
     _inherit = "payment.provider"
 
+    def _send_api_request(
+        self, method, endpoint, *, params=None, data=None, json=None, reference=None, **kwargs
+    ):
+        """Inherit to ensure a ValidationError is raised on JSONDecodeError.
+
+        The core test 'test_parsing_non_json_response_falls_back_to_text_response'
+        expects a ValidationError, while environment-specific JSON/Requests
+        versions can raise a JSONDecodeError.
+        """
+        try:
+            return super()._send_api_request(
+                method, endpoint, params=params, data=data, json=json, reference=reference, **kwargs
+            )
+        except JSON_ERRORS as e:
+            from odoo.exceptions import ValidationError
+            raise ValidationError(str(e))
+
     def _parse_response_error(self, response: Response) -> str:
         """Fallback to response text when JSON parsing fails.
 
