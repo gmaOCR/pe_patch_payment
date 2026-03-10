@@ -3,6 +3,7 @@ from __future__ import annotations
 from json import JSONDecodeError as StdJSONDecodeError
 from typing import Tuple
 
+import requests
 from requests import Response
 
 try:
@@ -16,6 +17,7 @@ JSON_ERRORS: Tuple[type[Exception], ...] = (
     SimpleJSONDecodeError,
     StdJSONDecodeError,
     ValueError,
+    requests.exceptions.JSONDecodeError,
 )
 
 
